@@ -10,7 +10,7 @@ import spray.http.{HttpRequest, HttpResponse}
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class Server(interface: String = "::1", port: Int = 8080, handler: PartialFunction[HttpRequest, HttpResponse] = {
+class Server(interface: String = "0.0.0.0", port: Int = 8080, handler: PartialFunction[HttpRequest, HttpResponse] = {
   case _ => HttpResponse()
 }) {
 
@@ -39,7 +39,7 @@ class Server(interface: String = "::1", port: Int = 8080, handler: PartialFuncti
 }
 
 object Server {
-  def apply(interface: String = "::1", port: Int = 8080)(handler: PartialFunction[HttpRequest, HttpResponse]): Server = {
+  def apply(interface: String = "0.0.0.0", port: Int = 8080)(handler: PartialFunction[HttpRequest, HttpResponse]): Server = {
     new Server(interface, port, handler)
   }
 
