@@ -39,8 +39,12 @@ class Server(interface: String = "0.0.0.0", port: Int = 8080, handler: PartialFu
 }
 
 object Server {
-  def apply(interface: String = "0.0.0.0", port: Int = 8080)(handler: PartialFunction[HttpRequest, HttpResponse]): Server = {
+  def syncServer(interface: String = "0.0.0.0", port: Int = 8080)(handler: PartialFunction[HttpRequest, HttpResponse]): Server = {
     new Server(interface, port, handler)
   }
+
+  //  def apply(interface: String = "0.0.0.0", port: Int = 8080)(handler: PartialFunction[HttpRequest, Future[HttpResponse]]): Server = {
+  //    new Server(interface, port)
+  //  }
 
 }

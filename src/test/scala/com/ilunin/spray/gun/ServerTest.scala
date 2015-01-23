@@ -27,7 +27,7 @@ class ServerTest extends FreeSpec with Matchers {
     "respond 200 to a HTTP request" - {
 
       "when built with a function that will always return 200" in {
-        val server = Server() {
+        val server = Server.syncServer() {
           case _ => HttpResponse()
         }
         server.start()
@@ -36,7 +36,7 @@ class ServerTest extends FreeSpec with Matchers {
       }
 
       "on /test when built with a function that will always return 200 on /test" in {
-        val server = Server() {
+        val server = Server.syncServer() {
           case HttpRequest(_, Uri.Path("/test"), _, _, _) => HttpResponse()
         }
         server.start()
@@ -55,7 +55,7 @@ class ServerTest extends FreeSpec with Matchers {
 
     "respond 404 to a HTTP request" - {
       "on /test when built with a function that will always return 200 on /other" in {
-        val server = Server() {
+        val server = Server.syncServer() {
           case HttpRequest(_, Uri.Path("/other"), _, _, _) => HttpResponse()
         }
         server.start()

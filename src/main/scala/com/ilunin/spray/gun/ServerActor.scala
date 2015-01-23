@@ -8,11 +8,9 @@ class ServerActor(handler: PartialFunction[HttpRequest, HttpResponse]) extends A
 
   override def receive: Receive = {
     case _: Http.Connected => sender ! Http.Register(self)
-    case request: HttpRequest => if (handler.isDefinedAt(request)) {
-      sender ! handler(request)
-    } else {
-      sender ! HttpResponse(status = 404)
-    }
+    case request: HttpRequest =>
+      val handlerWithDefault: PartialFunction[HttpRequest, HttpResponse] = handler orElse { case _ => HttpResponse(status = 404)}
+      sender ! handlerWithDefault(request)
   }
 
 }
