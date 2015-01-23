@@ -5,14 +5,12 @@ import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout
 import spray.can.Http
-import spray.http.{HttpRequest, HttpResponse}
+import spray.http._
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
-class Server(interface: String = "0.0.0.0", port: Int = 8080, handler: PartialFunction[HttpRequest, HttpResponse] = {
-  case _ => HttpResponse()
-}) {
+class Server(interface: String, port: Int, handler: PartialFunction[HttpRequest, Future[HttpResponse]]) {
 
   var system: Option[ActorSystem] = None
 
@@ -39,12 +37,34 @@ class Server(interface: String = "0.0.0.0", port: Int = 8080, handler: PartialFu
 }
 
 object Server {
-  def syncServer(interface: String = "0.0.0.0", port: Int = 8080)(handler: PartialFunction[HttpRequest, HttpResponse]): Server = {
+
+  def apply(interface: String = "0.0.0.0", port: Int = 8080, handler: PartialFunction[HttpRequest, Future[HttpResponse]] = {
+    case _ => Future.successful(HttpResponse())
+  }): Server = {
     new Server(interface, port, handler)
   }
 
-  //  def apply(interface: String = "0.0.0.0", port: Int = 8080)(handler: PartialFunction[HttpRequest, Future[HttpResponse]]): Server = {
-  //    new Server(interface, port)
-  //  }
+  def asyncServer(interface: String = "0.0.0.0", port: Int = 8080)(handler: PartialFunction[HttpRequest, Future[HttpResponse]]): Server = {
+    new Server(interface, port, handler)
+  }
+
+  def simpleServer(interface: String = "0.0.0.0", port: Int = 8080, contentType: ContentType = ContentTypes.`text/plain(UTF-8)`, content: String): Server = {
+    Server.syncServer(interface, port) {
+      case _ => HttpResponse(entity = HttpEntity(contentType, content))
+    }
+  }
+
+  def syncServer(interface: String = "0.0.0.0", port: Int = 8080)(handler: PartialFunction[HttpRequest, HttpResponse]): Server = {
+    new Server(interface, port, handler andThen (httpResponse => Future.successful(httpResponse)))
+  }
+
+  def withServer[T](server: Server)(body: => T) = {
+    server.start()
+    try {
+      body
+    } finally {
+      server.stop()
+    }
+  }
 
 }
