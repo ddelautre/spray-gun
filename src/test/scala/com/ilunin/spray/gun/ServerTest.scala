@@ -1,6 +1,6 @@
 package com.ilunin.spray.gun
 
-import com.ilunin.spray.gun.Server.{asyncServer, simpleServer, syncServer, withServer}
+import com.ilunin.spray.gun.Server.{asyncServer, executeWhileRunning, simpleServer, syncServer}
 import com.jayway.restassured.RestAssured._
 import org.scalatest.{FreeSpec, Matchers}
 import spray.http.{ContentTypes, HttpRequest, HttpResponse, Uri}
@@ -30,7 +30,7 @@ class ServerTest extends FreeSpec with Matchers {
 
     "not be able to start when in used by withServer" in {
       val server = Server()
-      withServer(server) {
+      executeWhileRunning(server) {
         val thrown = the[ServerAlreadyStartedException] thrownBy server.start()
         thrown.getMessage should be("Server already started on port 8080")
       }
@@ -38,7 +38,7 @@ class ServerTest extends FreeSpec with Matchers {
 
     "be able to start after being used by withServer" in {
       val server = Server()
-      withServer(server) {}
+      executeWhileRunning(server) {}
       noException should be thrownBy server.start()
       server.stop()
     }
@@ -49,7 +49,7 @@ class ServerTest extends FreeSpec with Matchers {
         val server = syncServer() {
           case _ => HttpResponse()
         }
-        withServer(server) {
+        executeWhileRunning(server) {
           get("http://localhost:8080/test").statusCode should be(200)
         }
       }
@@ -58,13 +58,13 @@ class ServerTest extends FreeSpec with Matchers {
         val server = syncServer() {
           case HttpRequest(_, Uri.Path("/test"), _, _, _) => HttpResponse()
         }
-        withServer(server) {
+        executeWhileRunning(server) {
           get("http://localhost:8080/test").statusCode should be(200)
         }
       }
 
       "when built with no function" in {
-        withServer(Server()) {
+        executeWhileRunning(Server()) {
           get("http://localhost:8080/test").statusCode should be(200)
         }
       }
@@ -73,13 +73,13 @@ class ServerTest extends FreeSpec with Matchers {
         val server = asyncServer() {
           case _ => Future(HttpResponse())
         }
-        withServer(server) {
+        executeWhileRunning(server) {
           get("http://localhost:8080/test").statusCode should be(200)
         }
       }
 
       "when built with a String" in {
-        withServer(simpleServer(content = "OK")) {
+        executeWhileRunning(simpleServer(content = "OK")) {
           get("http://localhost:8080/test").statusCode should be(200)
         }
       }
@@ -91,26 +91,26 @@ class ServerTest extends FreeSpec with Matchers {
         val server = syncServer() {
           case HttpRequest(_, Uri.Path("/other"), _, _, _) => HttpResponse()
         }
-        withServer(server) {
+        executeWhileRunning(server) {
           get("http://localhost:8080/test").statusCode should be(404)
         }
       }
     }
 
     "respond with the String when built with a String" in {
-      withServer(simpleServer(content = "OK")) {
+      executeWhileRunning(simpleServer(content = "OK")) {
         get("http://localhost:8080/test").body().asString() should be("OK")
       }
     }
 
     "respond with the text/plain(UTF-8) content type when built with a String" in {
-      withServer(simpleServer(content = "OK")) {
+      executeWhileRunning(simpleServer(content = "OK")) {
         get("http://localhost:8080/test").contentType() should be("text/plain; charset=UTF-8")
       }
     }
 
     "respond with the content type when built with a String and a specific content type" in {
-      withServer(simpleServer(contentType = ContentTypes.`application/json`, content = "OK")) {
+      executeWhileRunning(simpleServer(contentType = ContentTypes.`application/json`, content = "OK")) {
         get("http://localhost:8080/test").contentType() should be("application/json; charset=UTF-8")
       }
     }

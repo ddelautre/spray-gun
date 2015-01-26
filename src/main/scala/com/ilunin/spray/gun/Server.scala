@@ -58,7 +58,14 @@ object Server {
     new Server(interface, port, handler andThen (httpResponse => Future.successful(httpResponse)))
   }
 
-  def withServer[T](server: Server)(body: => T) = {
+  @Deprecated
+
+  /**
+   * Deprecated. Use executeWhileRunning instead.
+   */
+  def withServer[T](server: Server)(body: => T) = executeWhileRunning(server)(body)
+
+  def executeWhileRunning[T](server: Server)(body: => T) = {
     server.start()
     try {
       body
