@@ -59,7 +59,6 @@ object Server {
   }
 
   @Deprecated
-
   /**
    * Deprecated. Use executeWhileRunning instead.
    */
