@@ -30,7 +30,10 @@ class Server(interface: String, port: Int, handler: PartialFunction[HttpRequest,
 
 
   def stop(): Unit = {
-    system.foreach(_.shutdown())
+    system.foreach { actorSystem =>
+      actorSystem.shutdown()
+      actorSystem.awaitTermination()
+    }
     system = None
   }
 
