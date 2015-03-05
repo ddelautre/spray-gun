@@ -1,12 +1,12 @@
 package com.ilunin.spray.gun
 
 import spray.http.Uri.Path
-import spray.http.{HttpMethods, HttpRequest, Uri}
+import spray.http.{HttpRequest, Uri}
 
-object Get {
+object AnyMethod {
 
   def unapply(request: HttpRequest): Option[String] = request match {
-    case HttpRequest(HttpMethods.GET, Uri(_, _, Path(path), _, _), _, _, _) => Some(path)
+    case HttpRequest(_, Uri(_, _, Path(path), _, _), _, _, _) => Some(path)
     case _ => None
   }
 
