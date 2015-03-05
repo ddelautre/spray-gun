@@ -119,3 +119,38 @@ Server.syncServer() {
   }
 }
 ```
+
+### Running the server
+
+For starting the server, simply call the `start()` method on the `Server` instance that you have created.
+
+For stopping the server, simply call the `stop()` method on the `Server` instance that you have created.
+
+Example:
+
+```scala
+import com.ilunin.spray.gun.Server
+import spray.http.ContentTypes
+
+val server = Server.simpleServer("localhost", 8080, ContentTypes.`application/json`, """{"JSONCode": true}""")
+server.start()
+
+// Some code...
+
+server.stop()
+```
+
+You can also use the `executeWhileRunning` method on the `Server` object that takes an instance of `Server` and a block of code. The server is automatically started at the start of the block of code and stopped at its end.
+
+Example:
+
+```scala
+import com.ilunin.spray.gun.Server
+import spray.http.ContentTypes
+
+val server = Server.simpleServer("localhost", 8080, ContentTypes.`application/json`, """{"JSONCode": true}""")
+val result: String = Server.executeWhileRunning(server) {
+ val json: String = ??? // Some code that do a reqest on http://localhost:8080 and get the body
+ json
+}
+```
