@@ -21,8 +21,8 @@ class Server(interface: String, port: Int, handler: PartialFunction[HttpRequest,
     implicit val actorSystem = ActorSystem("spray-gun")
     system = Some(actorSystem)
     val listener = actorSystem.actorOf(Props(classOf[ServerActor], handler))
-    implicit val timeout = Timeout(1 second)
-    val result = Await.result(IO(Http) ? Http.Bind(listener, interface, port), 1 second)
+    implicit val timeout = Timeout(5 second)
+    val result = Await.result(IO(Http) ? Http.Bind(listener, interface, port), 5 second)
     if (result.isInstanceOf[Http.CommandFailed]) {
       throw new ServerAlreadyStartedException(port)
     }
