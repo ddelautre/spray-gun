@@ -1,7 +1,8 @@
 lazy val projectSettings = Seq(
   name := "spray-gun",
-  version := "1.1.1",
-  scalaVersion := "2.11.5"
+  version := "1.2.0",
+  scalaVersion := "2.11.5",
+  parallelExecution in Test := false
 )
 
 lazy val dependencies = Seq(
